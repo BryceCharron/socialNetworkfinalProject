@@ -68,6 +68,9 @@ ui <- navbarPage(
   hr(),
   p("Created by Bryce Charron | SOC 0226A", style = "font-size: 12px; color: gray;"))
 
+# libraries and data
+library(igraph); library(ggraph); library(tidyverse); library(ggplot2)
+
 # read in data
 mlb <- read_csv('/Users/BryceCharron/Library/CloudStorage/OneDrive-MiddleburyCollege/Senior Year/Spring/Social Networks/MLB/mlb_clean.csv')
 edges <- read_csv('/Users/BryceCharron/Library/CloudStorage/OneDrive-MiddleburyCollege/Senior Year/Spring/Social Networks/MLB/mlb_edges.csv')
