@@ -40,7 +40,7 @@ ui <- navbarPage(
            tags$ul(
              tags$li("Navigate the network analysis by clicking on the tabs above"),
              tags$li("Use sliders on each tab to explore trade dynamics in different seasons"),
-             tags$li("Hover over plots for additional detail.")))),
+             tags$li("Hover over plots for additional detail")))),
   
   tabPanel("Team Analysis",
            fluidPage(h2("Team-Level Analysis"),
@@ -109,7 +109,7 @@ server <- function(input, output) {
   
   p1 <- ggplot(top_teams, aes(x = count, y  = reorder(Team, count))) +
     geom_col(aes(fill = League)) +
-    scale_fill_manual(values = c("AL" = "#C8102E", "NL" = "#002D72"))+
+    scale_fill_manual(values = c("AL" = "#B23A48", "NL" = "#0B1F3A"))+
     labs(title = paste("Top 10 Trading Teams in", input$teamSeason),
       x = "Team",
       y = "Number of Trades") +
@@ -142,7 +142,7 @@ server <- function(input, output) {
                      color = "#B0B0B0",
                      show.legend = T) +
       geom_node_point(aes(size = strength, color = League)) +
-      scale_color_manual(values = c("AL" = "#C8102E", "NL" = "#002D72"))+
+      scale_color_manual(values = c("AL" = "#B23A48", "NL" = "#0B1F3A"))+
       geom_node_label(aes(label = Name),    
                       repel = T,
                       label.size = 0.2,
@@ -170,7 +170,7 @@ server <- function(input, output) {
                      show.legend = T) +
       geom_node_point(aes(size = strength, color = factor(cluster_louv))) +
       scale_color_manual(values = c("1" = "#0B1F3A", 
-                                    "2" = "#4C6E91",
+                                    "2" = "#C9A227",
                                     "3" = "#B23A48")) +
       geom_node_label(aes(label = Name),    
                       repel         = T,
@@ -184,7 +184,7 @@ server <- function(input, output) {
                  name = "Degree") +
       labs(
         title    = "Which teams exchange players most?",
-        subtitle = "Nodes colored according to Louvain",
+        subtitle = "Nodes clustered according to Louvain Algorithm",
         color = "Cluster"
       ) +
       theme_tufte() +
@@ -204,10 +204,10 @@ server <- function(input, output) {
                                y = reorder(Position, count),
                                fill = positionGroup)) +
         scale_fill_manual(values = c(
-          "Infield"  = "#8B1E3F",  
-          "Outfield" = "#1B4965",  
+          "Infield"  = "#B23A48",  
+          "Outfield" = "#0B1F3A",  
           "Utility"  = "#C9A227", 
-          "Pitcher"  = "#4C6E91"))+
+          "Pitcher"  = "#86A9C6"))+
         geom_col() +
         labs(
           title = paste("Trades by Position in", input$season),
