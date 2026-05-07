@@ -1,20 +1,12 @@
 # libraries and data
 library(shiny); library(igraph); library(ggraph); library(tidyverse); library(ggplot2);
-library(tidygraph)
+library(tidygraph); library(backbone); library(ggthemes)
 
 ui <- navbarPage(
   "Major League Baseball Network Analysis",
-  tags$head(
-    tags$link(
-      href = "https://fonts.googleapis.com/css2?family=Computer+Modern+Serif&display=swap",
-      rel = "stylesheet"
-    ),
-    tags$style(HTML("
-      body {
-        font-family: 'Computer Modern Serif', serif;
-      }
-    "))
-  ),
+  tags$head(tags$link(href = "https://fonts.googleapis.com/css2?family=Computer+Modern+Serif&display=swap",
+      rel = "stylesheet"),
+    tags$style(HTML("body {font-family: 'Computer Modern Serif', serif;}"))),
   tabPanel("Home",
            fluidPage(h1("Project Overview"),
                      p("This project explores trade relationships among Major League Baseball teams, 
