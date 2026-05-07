@@ -11,7 +11,7 @@ ui <- navbarPage(
            fluidPage(h1("Project Overview"),
                      p("This project explores trade relationships among Major League Baseball teams, 
                      analyzing how trading patterns relate to team performance and how front-office relationships may change over time.
-                     Network analysis will seek to investigate patterns of trade with regard to player value. It's possible that teams tend to trade with specific segments of the league
+                     The analysis will specifically seek to investigate patterns of trade with regard to player value. It's possible that teams tend to trade with specific segments of the league
                      or trade prospects and act as talent farms for teams with divergent managerial thinking. 
                      Thus, this analysis may be valuable in informing team trading strategy."),
                      
@@ -31,7 +31,7 @@ ui <- navbarPage(
                        tags$code("lagAVG"), ", ",
                        tags$code("lagERA"),
                        ", and ",
-                       tags$code("lagTeamwinPct"), ".", 
+                       tags$code("lagTeamwinPct"),".", 
                        "Further information on the data collection and cleaning process 
                        can be found in the ReadMe and Data Collection documentation on GitHub."
                      ),
@@ -170,8 +170,8 @@ server <- function(input, output) {
                      show.legend = T) +
       geom_node_point(aes(size = strength, color = factor(cluster_louv))) +
       scale_color_manual(values = c("1" = "#0B1F3A", 
-                                    "2" = "#C9A227",
-                                    "3" = "#B23A48")) +
+                                    "2" = "#B23A48",
+                                    "3" = "#C9A227")) +
       geom_node_label(aes(label = Name),    
                       repel         = T,
                       label.size    = 0.2,
@@ -212,7 +212,8 @@ server <- function(input, output) {
         labs(
           title = paste("Trades by Position in", input$season),
           x = "Number of Trades",
-          y = "Position"
+          y = "Position",
+          fill = "Position Type"
         ) +
         theme_minimal()
       
