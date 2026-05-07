@@ -70,9 +70,9 @@ ui <- navbarPage(
   p("Created by Bryce Charron | SOC 0226A", style = "font-size: 12px; color: gray;"))
 
 # read in data
-mlb <- read_csv('/Users/BryceCharron/Library/CloudStorage/OneDrive-MiddleburyCollege/Senior Year/Spring/Social Networks/MLB/mlb_clean.csv')
-edges <- read_csv('/Users/BryceCharron/Library/CloudStorage/OneDrive-MiddleburyCollege/Senior Year/Spring/Social Networks/MLB/mlb_edges.csv')
-nodes <- read_csv('/Users/BryceCharron/Library/CloudStorage/OneDrive-MiddleburyCollege/Senior Year/Spring/Social Networks/MLB/mlb_nodes.csv')
+mlb <- read_csv('mlb_clean.csv')
+edges <- read_csv('mlb_edges.csv')
+nodes <- read_csv('mlb_nodes.csv')
 
 # create network object using igraph
 net <- graph_from_data_frame(d = edges, vertices = nodes, directed = F)
