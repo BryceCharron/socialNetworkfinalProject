@@ -39,7 +39,7 @@ ui <- navbarPage(
            h3("How to Use"),
            tags$ul(
              tags$li("Navigate the network analysis by clicking on the tabs above"),
-             tags$li("Use filters in each tab to explore specific teams or players"),
+             tags$li("Use sliders on each tab to explore trade dynamics in different seasons"),
              tags$li("Hover over plots for additional detail.")))),
   
   tabPanel("Team Analysis",
@@ -51,7 +51,8 @@ ui <- navbarPage(
                                   value = 2010, sep = ""), 
                        verbatimTextOutput("value"),
                      plotOutput("barplot")),
-           plotOutput("network")),
+           plotOutput("network"),
+           plotOutput("network2")),
   tabPanel("Player Analysis",
            fluidPage(h2("Player-Level Analysis"),
                      p("This section focuses on individual player performance and metrics."),
@@ -79,7 +80,13 @@ t_net <- bp$proj2
 
 # let's make tidygraph objects
 p_tidy <- as_tbl_graph(p_net)
-t_tidy <- as_tbl_graph(t_net)
+t_tidy <- as_tbl_graph(t_net) |> 
+  activate(nodes) |>
+  mutate(btwn = centrality_betweenness(normalized = T),
+         degree = centrality_degree(mode = "all"),
+         strength = centrality_degree(weights = weight, mode = "all"),
+         cluster_walk = group_walktrap(steps = 5),
+         cluster_louv = group_louvain(weights = weight))
 
 trade_counts <- edges |>
   group_by(Team, Season) |>
@@ -122,7 +129,7 @@ server <- function(input, output) {
     
     t_net <- bp$proj2
     
-    t_tidy <- as_tbl_graph(t_net) |>
+    t_tidy_react <- as_tbl_graph(t_net) |>
       activate(nodes) |>
       mutate(btwn = centrality_betweenness(normalized = T),
              degree = centrality_degree(mode = "all"),
@@ -130,9 +137,9 @@ server <- function(input, output) {
              cluster_walk = group_walktrap(steps = 3),
              cluster_louv = group_louvain(weights = weight))
     
-    p2 <- ggraph(t_tidy, layout = "fr") +         
+    p2 <- ggraph(t_tidy_react, layout = "fr") +         
       geom_edge_link(aes(width = weight, alpha = weight),  
-                     color = "gray20",
+                     color = "#B0B0B0",
                      show.legend = T) +
       geom_node_point(aes(size = strength, color = League)) +
       scale_color_manual(values = c("AL" = "#C8102E", "NL" = "#002D72"))+
@@ -154,6 +161,37 @@ server <- function(input, output) {
     
     p2
   })
+  
+  output$network2 <- renderPlot({
+    
+    p3 <- ggraph(t_tidy, layout = "fr") +         
+      geom_edge_link(aes(width = weight, alpha = weight),  
+                     color = "#B0B0B0",
+                     show.legend = T) +
+      geom_node_point(aes(size = strength, color = factor(cluster_louv))) +
+      scale_color_manual(values = c("1" = "#0B1F3A", 
+                                    "2" = "#4C6E91",
+                                    "3" = "#B23A48")) +
+      geom_node_label(aes(label = Name),    
+                      repel         = T,
+                      label.size    = 0.2,
+                      fill          = "white") +
+      scale_edge_width(range = c(0.3, 4),   
+                       name = "Players exchanged") +
+      scale_edge_alpha(range = c(0.1, 0.7),  # faint edges = rare exchanges, easy to ignore
+                       guide = "none") +
+      scale_size(range = c(2, 10),
+                 name = "Degree") +
+      labs(
+        title    = "Which teams exchange players most?",
+        subtitle = "Nodes colored according to Louvain",
+        color = "Cluster"
+      ) +
+      theme_tufte() +
+      theme(legend.position = "right")
+    
+    p3
+  })
     # include an interactive bar chart that shows top ten most traded players by position
     output$position_plot <- renderPlot({
       
@@ -165,6 +203,11 @@ server <- function(input, output) {
       p2 <- ggplot(top_pos, aes(x = count,
                                y = reorder(Position, count),
                                fill = positionGroup)) +
+        scale_fill_manual(values = c(
+          "Infield"  = "#8B1E3F",  
+          "Outfield" = "#1B4965",  
+          "Utility"  = "#C9A227", 
+          "Pitcher"  = "#4C6E91"))+
         geom_col() +
         labs(
           title = paste("Trades by Position in", input$season),
