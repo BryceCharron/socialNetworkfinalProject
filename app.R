@@ -1,5 +1,6 @@
 # libraries and data
-library(shiny); library(igraph); library(ggraph); library(tidyverse); library(ggplot2)
+library(shiny); library(igraph); library(ggraph); library(tidyverse); library(ggplot2);
+library(tidygraph)
 
 ui <- navbarPage(
   "Major League Baseball Network Analysis",
