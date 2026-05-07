@@ -306,6 +306,42 @@
         "RemoteSha": "1.2.1"
       }
     },
+    "backbone": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "backbone",
+        "Type": "Package",
+        "Title": "Extracts the Backbone from Networks",
+        "Version": "3.0.3",
+        "Authors@R": "c(\n    person(\"Zachary\", \"Neal\", email = \"zpneal@msu.edu\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0003-3076-4995\")),\n    person(\"Rachel\", \"Domagalski\", role = \"ctb\"), \n    person(\"Bruce\", \"Sagan\", role = \"ctb\"),\n    person(\"Karl\", \"Godard\", role = \"ctb\")) ",
+        "Description": "An implementation of methods for extracting a sparse unweighted network (i.e. a backbone)\n    from an unweighted network (e.g., Hamann et al., 2016 <doi:10.1007/s13278-016-0332-2>), a weighted network\n    (e.g., Serrano et al., 2009 <doi:10.1073/pnas.0808904106>), or a weighted projection (e.g., Neal et al., 2021\n    <doi:10.1038/s41598-021-03238-3>).",
+        "License": "GPL-3",
+        "Encoding": "UTF-8",
+        "RoxygenNote": "7.3.2",
+        "Depends": "R (>= 3.5)",
+        "Imports": "graphics, igraph, Matrix, methods, stats, Rcpp, utils,",
+        "Suggests": "knitr, rmarkdown, tinytest",
+        "LinkingTo": "Rcpp",
+        "VignetteBuilder": "knitr",
+        "URL": "https://www.zacharyneal.com/backbone,\nhttps://github.com/zpneal/backbone",
+        "BugReports": "https://github.com/zpneal/backbone/issues",
+        "LazyData": "true",
+        "NeedsCompilation": "yes",
+        "Packaged": "2025-12-08 14:30:12 UTC; zacharyneal",
+        "Author": "Zachary Neal [aut, cre] (ORCID:\n    <https://orcid.org/0000-0003-3076-4995>),\n  Rachel Domagalski [ctb],\n  Bruce Sagan [ctb],\n  Karl Godard [ctb]",
+        "Maintainer": "Zachary Neal <zpneal@msu.edu>",
+        "Repository": "CRAN",
+        "Date/Publication": "2025-12-08 15:00:02 UTC",
+        "Built": "R 4.5.2; aarch64-apple-darwin20; 2025-12-08 17:34:10 UTC; unix",
+        "Archs": "backbone.so.dSYM",
+        "RemoteType": "standard",
+        "RemotePkgRef": "backbone",
+        "RemoteRef": "backbone",
+        "RemoteRepos": "https://cran.rstudio.com",
+        "RemoteSha": "3.0.3"
+      }
+    },
     "backports": {
       "Source": "CRAN",
       "Repository": "https://cran.rstudio.com",
@@ -1464,6 +1500,41 @@
         "RemoteRef": "ggrepel",
         "RemoteRepos": "https://cran.rstudio.com",
         "RemoteSha": "0.9.6"
+      }
+    },
+    "ggthemes": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "ggthemes",
+        "Version": "5.2.0",
+        "Title": "Extra Themes, Scales and Geoms for 'ggplot2'",
+        "Authors@R": "c(person(\"Jeffrey B.\", \"Arnold\", role = c(\"aut\", \"cre\"),\n    email = \"jeffrey.arnold@gmail.com\", \n    comment = \"<https://orcid.org/0000-0001-9953-3904>\"),\n    person(\"Gergely\", \"Daroczi\", role = \"ctb\"),\n    person(\"Bo\", \"Werth\", role = \"ctb\"),\n    person(\"Brian\", \"Weitzner\", role = \"ctb\"),\n    person(\"Joshua\", \"Kunst\", role = \"ctb\"),\n    person(\"Baptise\", \"Auguie\", role = \"ctb\"),\n    person(\"Bob\", \"Rudis\", role = \"ctb\"),\n    person(\"Hadley\", \"Wickham\", role = c(\"ctb\"),\n    comment = \"Code from the ggplot2 package.\"),\n    person(\"Justin\",  \"Talbot\", role = \"ctb\",\n    comment = \"Code from the labeling package\"),\n    person(\"Joshua\", \"London\", role = \"ctb\"))",
+        "Depends": "R (>= 3.3.0)",
+        "Imports": "ggplot2 (>= 3.0.0), graphics, grid, lifecycle, methods, purrr,\nscales, stringr, tibble",
+        "Suggests": "dplyr, covr, extrafont, glue, knitr, lattice, lintr, maps,\nmapproj, pander, quantreg, rlang, rmarkdown, spelling, testthat\n(>= 3.2.0), tidyr, vdiffr, withr",
+        "Description": "Some extra themes, geoms, and scales for 'ggplot2'.\n    Provides 'ggplot2' themes and scales that replicate the look of plots\n    by Edward Tufte, Stephen Few, 'Fivethirtyeight', 'The Economist', 'Stata',\n    'Excel', and 'The Wall Street Journal', among others.\n    Provides 'geoms' for Tufte's box plot and range frame.",
+        "License": "GPL-2",
+        "URL": "https://jrnold.github.io/ggthemes/,\nhttps://github.com/jrnold/ggthemes,\nhttp://jrnold.github.io/ggthemes/",
+        "BugReports": "https://github.com/jrnold/ggthemes/issues",
+        "RoxygenNote": "7.3.3",
+        "LazyData": "true",
+        "Language": "en-US",
+        "Encoding": "UTF-8",
+        "Config/testthat/edition": "3",
+        "Config/Needs/website": "pkgdown",
+        "NeedsCompilation": "no",
+        "Packaged": "2025-11-30 04:07:26 UTC; jrnold",
+        "Author": "Jeffrey B. Arnold [aut, cre] (<https://orcid.org/0000-0001-9953-3904>),\n  Gergely Daroczi [ctb],\n  Bo Werth [ctb],\n  Brian Weitzner [ctb],\n  Joshua Kunst [ctb],\n  Baptise Auguie [ctb],\n  Bob Rudis [ctb],\n  Hadley Wickham [ctb] (Code from the ggplot2 package.),\n  Justin Talbot [ctb] (Code from the labeling package),\n  Joshua London [ctb]",
+        "Maintainer": "Jeffrey B. Arnold <jeffrey.arnold@gmail.com>",
+        "Repository": "CRAN",
+        "Date/Publication": "2025-11-30 17:00:12 UTC",
+        "Built": "R 4.5.2; ; 2025-11-30 21:30:49 UTC; unix",
+        "RemoteType": "standard",
+        "RemotePkgRef": "ggthemes",
+        "RemoteRef": "ggthemes",
+        "RemoteRepos": "https://cran.rstudio.com",
+        "RemoteSha": "5.2.0"
       }
     },
     "glue": {
@@ -4133,7 +4204,7 @@
   },
   "files": {
     "app.R": {
-      "checksum": "862435ee389baf1cd49b1701a882fa7a"
+      "checksum": "f1029fb07940b769aba2d871d07f64ac"
     },
     "mlb_clean.csv": {
       "checksum": "1b71f8e1b55785f9c550d0363ea0843a"
