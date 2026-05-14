@@ -25,11 +25,20 @@ ui <- navbarPage(
   tabPanel("Home",
            fluidPage(h1("Project Overview"),
                      p("This project explores trade relationships among Major League Baseball teams, 
-                     analyzing how trading patterns relate to team performance and how front-office relationships may change over time.
-                     The analysis will specifically seek to investigate patterns of trade with regard to player value. It's possible that teams tend to trade with specific segments of the league
+                     analyzing how trading patterns relate to player performance and how front-office relationships may change over time.
+                     The analysis will specifically seek to investigate patterns of trade with regard to player value. 
+                     It's possible that teams tend to trade with specific segments of the league
                      or trade prospects and act as talent farms for teams with divergent managerial thinking. 
-                     Thus, this analysis may be valuable in informing team trading strategy."),
+                    Using the Louvain community detection algorithm, I identify three trading blocs of teams that tend 
+                    to trade with one another. An analysis of degree centrality also finds that the number of trading partners
+                    generally decreases in 2020, likely due to lowered incentives
+                     during the shortened COVID-19 season. It is apparent that 
+                     season-to-season, the amount of trading activity a given team engages in is variable.
+                     This likely reflects varying strategic priorities by year. 
+                     Overall, through the various forms of interactivity, this app
+                       may be valuable in informing future team trading strategy."),
            h3("How to Use"),
+           p("Directions on how to navigate the application are displayed at the top of each tab. Generally speaking, one can "),
            tags$ul(
              tags$li("Navigate the network analysis by clicking on the tabs above"),
              tags$li("Use sliders on each tab to explore trade dynamics in different seasons"),
@@ -67,7 +76,8 @@ ui <- navbarPage(
       tabPanel("Team Analysis",
            fluidPage(h2("Team-Level Analysis"),
                                     p("This section explores team-level trends and comparisons.
-                                      Play with the Season slider to view how trade activity varies over time.
+                                      Play with the Season slider to view how the degree centrality
+                                      (number of trading partners) of a team varies over time.
                                       Click on the Networks tab to view team-by-team projection networks."),
                      tabsetPanel(id = "tabset",
                        tabPanel("Bar Chart",
@@ -131,7 +141,7 @@ ui <- navbarPage(
                                                                 "NYM", "WSH", "LAA",
                                                                 "HOU", "AZ", "CIN",
                                                                 "ATH", "CWS", "TB"),
-                                selected = c("NYY", "TOR", "BOS", "TB", "BAL"),
+                                selected = c("SF", "CHC", "BOS", "LAD", "BAL"),
                                 multiple = T,
                                 options = list(maxItems = 5))),
                               column(4,
@@ -256,17 +266,29 @@ server <- function(input, output) {
   
   # include an interactive bar chart that shows top ten most active trading teams (by year)
   output$barplot <- renderPlot({
-  top_teams <- trade_counts |>
-    filter(Season == input$teamSeason) |>
-    slice_max(count, n = 10) |>
-    arrange(count)
   
-  p1 <- ggplot(top_teams, aes(x = count, y  = reorder(Team, count))) +
+    # plot team trading network
+    net <- edges |>
+      filter(Season == input$teamSeason) |>
+      graph_from_data_frame(vertices = nodes, directed = F) |>
+      as_tbl_graph()
+    
+    bp <- bipartite_projection(net)
+    
+    t_net <- bp$proj2
+    
+    t_tidy_react <- as_tbl_graph(t_net) |>
+      activate(nodes) |>
+      mutate(btwn = centrality_betweenness(normalized = T),
+             degree = centrality_degree(mode = "all")) |> 
+      as_tibble()
+  
+  p1 <- ggplot(t_tidy_react, aes(x = degree, y  = reorder(Name, degree))) +
     geom_col(aes(fill = League)) +
     scale_fill_manual(values = c("AL" = "#B23A48", "NL" = "#0B1F3A"))+
-    labs(title = paste("Top 10 Trading Teams in", input$teamSeason),
-      x = "Team",
-      y = "Number of Trades") +
+    labs(title = paste("Degree Centrality: Number of trading partners in", input$teamSeason),
+      x = "Number of Teams",
+      y = "Team") +
     theme_tufte()
 
     p1
@@ -285,7 +307,7 @@ server <- function(input, output) {
     
     t_tidy_react <- as_tbl_graph(t_net) |>
       activate(nodes) |>
-      mutate(btwn = centrality_betweenness(normalized = TRUE),
+      mutate(btwn = centrality_betweenness(normalized = T),
              degree = centrality_degree(mode = "all"),
              strength = centrality_degree(weights = weight, mode = "all"),
              cluster_walk = group_walktrap(steps = 5),
