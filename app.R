@@ -119,7 +119,8 @@ ui <- navbarPage(
                      toggle various season, team, statistic combinations to view how teams make trades based
                      on player value. If a specific combination fails to render a network, no corresponding data exists.
                        I recommend selecting four to five teams of interest for greater data availability. Although edges
-                       are undirected in this visualization, general patterns of trade can be identified."),
+                       are undirected in this visualization, general patterns of trade can be identified. 
+                       Nodes are colored by player position type, and edge widths are sized by player age."),
                      fluidRow(column(4,
                                      sliderInput("season", "Select Season",
                                           min = 2010, max = 2024,
@@ -222,14 +223,13 @@ server <- function(input, output) {
         mutate(positionGroup = fct_infreq(positionGroup)) |>
         ggplot(aes(x = factor(1), fill = positionGroup)) +
         geom_bar(position = "fill") +
-        scale_fill_manual(values = c(
-          "Infield"  = "#B23A48",  
+        scale_fill_manual(values = c("Infield"  = "#B23A48",  
           "Outfield" = "#0B1F3A",  
           "Utility"  = "#C9A227", 
           "Pitcher"  = "#86A9C6"))+
         scale_y_continuous(labels = scales::percent) +
         labs(x = NULL, fill = "Position Type", y  = "Percent") +
-        theme_minimal() +
+        theme_tufte() +
         theme(axis.text.x = element_blank(),
           axis.ticks.x = element_blank())
       
@@ -244,7 +244,7 @@ server <- function(input, output) {
         geom_boxplot() +
         labs(x = NULL, y = input$select) +
         scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+ 
-        theme_minimal() +
+        theme_tufte() +
         theme(axis.text.x = element_blank(),
           axis.ticks.x = element_blank())
       
@@ -269,10 +269,10 @@ server <- function(input, output) {
     t_tidy_react <- as_tbl_graph(t_net) |>
       activate(nodes) |>
       mutate(btwn = centrality_betweenness(normalized = T),
-             degree = centrality_degree(mode = "all")) |> 
+             degree = centrality_degree()) |> 
       as_tibble()
   
-  p1 <- ggplot(t_tidy_react, aes(x = degree, y= reorder(Name, degree))) +
+  p1 <- ggplot(t_tidy_react, aes(x = degree, y = reorder(Name, degree))) +
     geom_col(aes(fill = League)) +
     scale_fill_manual(values = c("AL" = "#B23A48", "NL" = "#0B1F3A"))+
     labs(title = paste("Degree Centrality: Number of trading partners in", input$teamSeason),
@@ -298,8 +298,8 @@ server <- function(input, output) {
     t_tidy_react <- as_tbl_graph(t_net) |>
       activate(nodes) |>
       mutate(btwn = centrality_betweenness(normalized = T),
-             degree = centrality_degree(mode = "all"),
-             strength = centrality_degree(weights = weight, mode = "all"),
+             degree = centrality_degree(),
+             strength = centrality_degree(weights = weight),
              cluster_walk = group_walktrap(steps = 5),
              cluster_louv = group_louvain(weights = weight),
              eigen = centrality_eigen(weights = weight)) 
@@ -357,27 +357,28 @@ server <- function(input, output) {
     
     output$network3 <- renderPlot({
       
-      # filter to selected teams
+    # filter to selected teams, grab players who have played for at least one of them
     spec_teams <- edges |> 
       filter(Team %in% input$teams, Season == input$season) |> 
       group_by(Player, Season) |>
       summarise(teams = n_distinct(Team)) |>
       filter(teams > 1)
     
-    # add player names to df
+    # make vector of specific names
     spec_names <- spec_teams$Player
     
     # make network
     p4 <- as_tbl_graph(net) |>
       activate(edges) |> 
-      filter(Player %in% spec_names, Team %in% input$teams, Season == input$season) |> 
+      filter(Player %in% spec_names,
+             Team %in% input$teams,
+             Season == input$season) |> 
       activate(nodes) |> 
       mutate(degree = centrality_degree()) |> 
       filter(degree > 0) |> 
       ggraph(layout = "bipartite") + 
       geom_edge_link(aes(color = .data[[input$stat]], width = Age)) + 
       geom_node_point(aes(color = positionGroup), size = 3) + 
-      theme_void() + 
       scale_color_manual(name = "Position Type",
         values = c("Infield"  = "#B23A48",  
           "Outfield" = "#0B1F3A",  
