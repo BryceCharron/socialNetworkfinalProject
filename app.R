@@ -81,14 +81,12 @@ ui <- navbarPage(
                                       Click on the Networks tab to view team-by-team projection networks."),
                      tabsetPanel(id = "tabset",
                        tabPanel("Bar Chart",
-                         sliderInput(
-                           "teamSeason",
+                         sliderInput("teamSeason",
                            "Select Season",
                            min = 2010,
                            max = 2024,
                            value = 2010,
-                           sep = ""
-                         ),
+                           sep = ""),
                          verbatimTextOutput("value"),
                          plotOutput("barplot")),
                        tabPanel("Networks",
@@ -98,15 +96,13 @@ ui <- navbarPage(
                                 trading partners are in a given season. 
                                 This means that teams involved in large exchanges 
                                 become more prominent."),
-                                fluidRow(column(6, 
-                                                sliderInput("teamSeason",
+                                fluidRow(column(6, sliderInput("teamSeason",
                                            "Select Season",
                                            min = 2010,
                                            max = 2024,
                                            value = 2010,
                                            sep = "")),
-                                         column(6,
-                                                radioButtons("size_by",
+                                         column(6,radioButtons("size_by",
                                                              "Centrality Measure",
                                                              choices = c("Degree Centrality" = "degree", 
                                                                          "Eigenvector Centrality" = "eigen"),
@@ -181,16 +177,6 @@ t_tidy <- as_tbl_graph(t_net) |>
          cluster_walk = group_walktrap(steps = 5),
          cluster_louv = group_louvain(weights = weight))
 
-trade_counts <- edges |>
-  group_by(Team, Season) |>
-  summarize(count = n(), .groups = "drop") |> 
-  left_join(nodes |> select(Name, League), by  = c("Team" = "Name"))
-
-pos_df <- edges |>
-  left_join(nodes, by = c("To" = "ID")) |> 
-  group_by(Position, positionGroup, Season) |>
-  summarize(count = n(), .groups = "drop") 
-
 server <- function(input, output) {
   
   output$attrs_text <- renderText({
@@ -229,6 +215,8 @@ server <- function(input, output) {
       
   output$attrs <- renderPlot({
     if (input$select == "positionGroup") {
+      
+      # drop NAs and then reorder in order of frequency (for cleaner display)
       nodes |>
         drop_na(positionGroup) |>
         mutate(positionGroup = fct_infreq(positionGroup)) |>
@@ -264,7 +252,7 @@ server <- function(input, output) {
     
   })
   
-  # include an interactive bar chart that shows top ten most active trading teams (by year)
+  # include an interactive bar chart that shows team degree centrality (by year)
   output$barplot <- renderPlot({
   
     # plot team trading network
@@ -273,17 +261,18 @@ server <- function(input, output) {
       graph_from_data_frame(vertices = nodes, directed = F) |>
       as_tbl_graph()
     
+    # projection
     bp <- bipartite_projection(net)
     
+    # focus on teams
     t_net <- bp$proj2
-    
     t_tidy_react <- as_tbl_graph(t_net) |>
       activate(nodes) |>
       mutate(btwn = centrality_betweenness(normalized = T),
              degree = centrality_degree(mode = "all")) |> 
       as_tibble()
   
-  p1 <- ggplot(t_tidy_react, aes(x = degree, y  = reorder(Name, degree))) +
+  p1 <- ggplot(t_tidy_react, aes(x = degree, y= reorder(Name, degree))) +
     geom_col(aes(fill = League)) +
     scale_fill_manual(values = c("AL" = "#B23A48", "NL" = "#0B1F3A"))+
     labs(title = paste("Degree Centrality: Number of trading partners in", input$teamSeason),
@@ -301,10 +290,11 @@ server <- function(input, output) {
       graph_from_data_frame(vertices = nodes, directed = F) |>
       as_tbl_graph()
     
+    # projection
     bp <- bipartite_projection(net)
     
+    # focus on teams
     t_net <- bp$proj2
-    
     t_tidy_react <- as_tbl_graph(t_net) |>
       activate(nodes) |>
       mutate(btwn = centrality_betweenness(normalized = T),
@@ -315,7 +305,8 @@ server <- function(input, output) {
              eigen = centrality_eigen(weights = weight)) 
     
     p2 <- ggraph(t_tidy_react, layout = "fr") +         
-      geom_edge_link(aes(width = weight, alpha = weight),  
+      geom_edge_link(aes(width = weight), 
+                     alpha = 0.45,  
                      color = "#B0B0B0",
                      show.legend = T) +
       geom_node_point(aes(size = .data[[input$size_by]], color = League)) +
@@ -325,7 +316,6 @@ server <- function(input, output) {
                       label.size = 0.2,
                       fill = "white") +
       scale_edge_width(name = "Players exchanged") +
-      scale_edge_alpha(guide = "none") +
       scale_size(range = c(2, 10),
                  name = "Degree") +
       labs(title = "Which teams exchange players most?",
@@ -336,10 +326,12 @@ server <- function(input, output) {
     p2
   })
   
+  # let's use a cluster algorithm to identify communities or blocs of trading partners
   output$network2 <- renderPlot({
     
     p3 <- ggraph(t_tidy, layout = "fr") +         
-      geom_edge_link(aes(width = weight, alpha = weight),  
+      geom_edge_link(aes(width = weight),
+                     alpha = 0.45,  
                      color = "#B0B0B0",
                      show.legend = T) +
       geom_node_point(aes(size = strength, color = factor(cluster_louv))) +
@@ -347,14 +339,13 @@ server <- function(input, output) {
                                     "2" = "#EF8354",
                                     "3" = "#2D936C")) +
       geom_node_label(aes(label = Name),    
-                      repel         = T,
-                      label.size    = 0.2,
-                      fill          = "white") +
+                      repel = T,
+                      label.size = 0.2,
+                      fill = "white") +
       scale_edge_width(range = c(0.3, 4),   
                        name = "Players exchanged") +
       scale_size(range = c(2, 10),
                  name = "Degree") +
-      scale_edge_alpha(guide = "none") +
       labs(title = "Which teams exchange players most?",
            subtitle = "Edge width = number of exchanged players | Node size = number of total players traded",
         color = "Cluster") +
@@ -363,43 +354,20 @@ server <- function(input, output) {
     
     p3
   })
-    # include an interactive bar chart that shows top ten most traded players by position
-    output$position_plot <- renderPlot({
-      
-    top_pos <- pos_df |>
-      filter(Season == input$season) |>
-      slice_max(count, n = 10) |>
-      arrange(count)
-      
-      p2 <- ggplot(top_pos, aes(x = count,
-                               y = reorder(Position, count),
-                               fill = positionGroup)) +
-        scale_fill_manual(values = c(
-          "Infield"  = "#B23A48",  
-          "Outfield" = "#0B1F3A",  
-          "Utility"  = "#C9A227", 
-          "Pitcher"  = "#86A9C6"))+
-        geom_col() +
-        labs(
-          title = paste("Trades by Position in", input$season),
-          x = "Number of Trades",
-          y = "Position",
-          fill = "Position Type"
-        ) +
-        theme_minimal()
-      
-     p2
-    })
     
     output$network3 <- renderPlot({
+      
+      # filter to selected teams
     spec_teams <- edges |> 
       filter(Team %in% input$teams, Season == input$season) |> 
       group_by(Player, Season) |>
       summarise(teams = n_distinct(Team)) |>
       filter(teams > 1)
     
+    # add player names to df
     spec_names <- spec_teams$Player
     
+    # make network
     p4 <- as_tbl_graph(net) |>
       activate(edges) |> 
       filter(Player %in% spec_names, Team %in% input$teams, Season == input$season) |> 
@@ -413,8 +381,8 @@ server <- function(input, output) {
       scale_color_manual(name = "Position Type",
         values = c("Infield"  = "#B23A48",  
           "Outfield" = "#0B1F3A",  
-          "Utility"  = "#C9A227", 
-          "Pitcher"  = "#86A9C6",
+          "Utility" = "#C9A227", 
+          "Pitcher" = "#86A9C6",
           "Team" = "#2D6A4F")) +
       scale_edge_color_gradient(low = "#E8F4F8",
                                 high = "#08306B",
