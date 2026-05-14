@@ -378,7 +378,7 @@ server <- function(input, output) {
       filter(degree > 0) |> 
       ggraph(layout = "bipartite") + 
       geom_edge_link(aes(color = .data[[input$stat]], width = Age)) + 
-      geom_node_point(aes(color = positionGroup), size = 3) + 
+      geom_node_point(aes(color = positionGroup), size = 3.75) + 
       scale_color_manual(name = "Position Type",
         values = c("Infield"  = "#B23A48",  
           "Outfield" = "#0B1F3A",  
@@ -388,7 +388,7 @@ server <- function(input, output) {
       scale_edge_color_gradient(low = "#E8F4F8",
                                 high = "#08306B",
                                 name = paste(input$stat)) +
-      geom_node_label(aes(label = Name), size = 3.5, repel = T)+
+      geom_node_label(aes(label = Name), size = 3.75, repel = T)+
       theme_tufte()
     
     p4
